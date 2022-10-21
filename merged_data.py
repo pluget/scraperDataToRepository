@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import requests
+import re
 from io import BytesIO
 from dotenv import load_dotenv
 from unidecode import unidecode
@@ -95,7 +96,8 @@ def main():
                 + source_link_splitted[4].split(".")[0]
             ).json()
 
-            github_data["numberOfStars"] = github_json["stargazers_count"]
+            if "stargazers_count" in github_json:
+                github_data["numberOfStars"] = github_json["stargazers_count"]
             if "license" in github_json and github_json["license"] is not None:
                 spdx = github_json["license"]["spdx_id"]
 
@@ -206,7 +208,10 @@ def main():
         if github_data != {}:
             plugin_data["data"].append(github_data)
 
-        print(plugin_data)
+        # Create simplified version of the plugin name
+        plugin_name = "-".join(re.split(" |_", unidecode(plugin_data["name"]).lower()))
+
+        print(plugin_name, plugin_data)
 
 
 if __name__ == "__main__":
