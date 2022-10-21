@@ -209,7 +209,17 @@ def main():
             plugin_data["data"].append(github_data)
 
         # Create simplified version of the plugin name
-        plugin_name = "-".join(re.split(" |_", unidecode(plugin_data["name"]).lower()))
+        plugin_name = "-".join(
+            filter(
+                None,
+                re.split(
+                    r" +",
+                    unidecode(
+                        re.sub(r"[^a-zA-Z0-9 ]", "", plugin_data["name"])
+                    ).lower(),
+                ),
+            )
+        )
 
         print(plugin_name, plugin_data)
 
