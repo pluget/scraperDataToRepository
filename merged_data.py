@@ -3,6 +3,7 @@ import json
 import base64
 import requests
 import re
+import pathlib
 from io import BytesIO
 from dotenv import load_dotenv
 from unidecode import unidecode
@@ -74,6 +75,28 @@ def main():
     api_nfts = nft_storage_api.NFTStorageAPI(nft_storage.ApiClient(config_nfts))
 
     for plugin in data:
+        # Create simplified version of the plugin name
+        plugin_name = "-".join(
+            filter(
+                None,
+                re.split(
+                    r" +",
+                    unidecode(re.sub(r"[^a-zA-Z0-9 ]", "", plugin[2]["name"])).lower(),
+                ),
+            )
+        )
+
+        print("Starting with" + plugin_name)
+
+        # If the plugin already exists, skip it
+        if os.path.exists("../repository/" + plugin_name[0] + "/" + plugin_name):
+            continue
+
+        # Create the directory for the plugin
+        pathlib.Path("../repository/" + plugin_name[0] + "/" + plugin_name).mkdir(
+            parents=True, exist_ok=True
+        )
+
         # Get the source link
         source_link = ""
         if "sourceCodeLink" in plugin[2]:
@@ -220,19 +243,6 @@ def main():
         if github_data != {}:
             plugin_data["data"].append(github_data)
 
-        # Create simplified version of the plugin name
-        plugin_name = "-".join(
-            filter(
-                None,
-                re.split(
-                    r" +",
-                    unidecode(
-                        re.sub(r"[^a-zA-Z0-9 ]", "", plugin_data["name"])
-                    ).lower(),
-                ),
-            )
-        )
-
         # Create the array of dictionaries of version data
         versions_data = []
         spigot_versions_object = list(
@@ -251,33 +261,64 @@ def main():
                 version_cid = vertocid_data[version["id"]]
 
             versions_data.append(
-                {
-                    "about": [
-                        {
-                            "type": "spigot",
-                            "sourceUrl": "https://spigotmc.org/resources/"
-                            + str(plugin[2]["id"])
-                            + "/history",
-                            "downloadUrl": "https://www.spigotmc.org/resources/"
-                            + str(plugin[2]["id"])
-                            + "/download?version="
-                            + str(version["id"]),
-                            "numberOfDownloads": version["downloads"],
-                            "rating": version["rating"]["average"],
-                            "numberOfVotes": version["rating"]["count"],
-                            "releaseDate": version["releaseDate"],
-                        }
-                    ],
-                    "cid": version_cid,
-                    "releaseDate": version["releaseDate"],
-                    "supportedApis": ["paper", "spigot", "bukkit"],
-                    "dependencies": [],
-                    "optionalDependencies": [],
-                    "supportedVersions": plugin[2]["testedVersions"],
-                }
+                [
+                    version["name"],
+                    {
+                        "about": [
+                            {
+                                "type": "spigot",
+                                "sourceUrl": "https://spigotmc.org/resources/"
+                                + str(plugin[2]["id"])
+                                + "/history",
+                                "downloadUrl": "https://www.spigotmc.org/resources/"
+                                + str(plugin[2]["id"])
+                                + "/download?version="
+                                + str(version["id"]),
+                                "numberOfDownloads": version["downloads"],
+                                "rating": version["rating"]["average"],
+                                "numberOfVotes": version["rating"]["count"],
+                                "releaseDate": version["releaseDate"],
+                            }
+                        ],
+                        "cid": version_cid,
+                        "releaseDate": version["releaseDate"],
+                        "supportedApis": ["paper", "spigot", "bukkit"],
+                        "dependencies": [],
+                        "optionalDependencies": [],
+                        "supportedVersions": plugin[2]["testedVersions"],
+                    },
+                ]
             )
 
-        print(plugin_name, plugin_data, versions_data)
+            # Put plugin data into the repository
+            f = open(
+                "../repository/"
+                + plugin_name[0]
+                + "/"
+                + plugin_name
+                + "/"
+                + "data.json",
+                "w+",
+            )
+            f.write(json.dumps(plugin_data))
+            f.close()
+
+            # Put version data into the repository
+            for version in versions_data:
+                f = open(
+                    "../repository/"
+                    + plugin_name[0]
+                    + "/"
+                    + plugin_name
+                    + "/"
+                    + version[0]
+                    + ".json",
+                    "w+",
+                )
+                f.write(json.dumps(version[1]))
+                f.close()
+
+        print("Done with " + plugin_name)
 
 
 if __name__ == "__main__":
