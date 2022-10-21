@@ -46,6 +46,13 @@ def main():
     # Close the file
     f.close()
 
+    # Open the version to cid file
+    f = open("../../mpmgg/repository/verid.json", "r")
+    # Read the file
+    vertocid_data = json.load(f)
+    # Close the file
+    f.close()
+
     code = input()
 
     params = {
@@ -112,8 +119,12 @@ def main():
                 + source_link_splitted[4].split(".")[0]
                 + "/contributors"
             ).json()
-            for contributor in github_contributors_json:
-                github_data["authors"].append(contributor["login"])
+            if (
+                github_contributors_json is not None
+                and "message" not in github_contributors_json
+            ):
+                for contributor in github_contributors_json:
+                    github_data["authors"].append(contributor["login"])
 
         # If depricated in Bukkit mark as archived
         if plugin[1]["depricated"] is True:
@@ -161,6 +172,7 @@ def main():
         if "contributors" in plugin[2]:
             spigot_authors = plugin[2]["contributors"].split(", ")
 
+        # Create dictionary of plugin data
         plugin_data = {
             "name": plugin[2]["name"],
             "icon": cid_bukkit_icon,
@@ -221,7 +233,51 @@ def main():
             )
         )
 
-        print(plugin_name, plugin_data)
+        # Create the array of dictionaries of version data
+        versions_data = []
+        spigot_versions_object = list(
+            filter(lambda x: x["id"] == plugin[2]["id"], spigot_versions_data)
+        )[0]
+        spigot_versions = list()
+        if "versions" in spigot_versions_object:
+            spigot_versions = spigot_versions_object["versions"]
+
+        for version in spigot_versions:
+            version_cid = ""
+            if (
+                version["id"] in vertocid_data
+                and vertocid_data[version["id"]] is not None
+            ):
+                version_cid = vertocid_data[version["id"]]
+
+            versions_data.append(
+                {
+                    "about": [
+                        {
+                            "type": "spigot",
+                            "sourceUrl": "https://spigotmc.org/resources/"
+                            + str(plugin[2]["id"])
+                            + "/history",
+                            "downloadUrl": "https://www.spigotmc.org/resources/"
+                            + str(plugin[2]["id"])
+                            + "/download?version="
+                            + str(version["id"]),
+                            "numberOfDownloads": version["downloads"],
+                            "rating": version["rating"]["average"],
+                            "numberOfVotes": version["rating"]["count"],
+                            "releaseDate": version["releaseDate"],
+                        }
+                    ],
+                    "cid": version_cid,
+                    "releaseDate": version["releaseDate"],
+                    "supportedApis": ["paper", "spigot", "bukkit"],
+                    "dependencies": [],
+                    "optionalDependencies": [],
+                    "supportedVersions": plugin[2]["testedVersions"],
+                }
+            )
+
+        print(plugin_name, plugin_data, versions_data)
 
 
 if __name__ == "__main__":
