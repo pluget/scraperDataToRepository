@@ -86,7 +86,7 @@ def main():
             )
         )
 
-        print("Starting with" + plugin_name)
+        print("Starting with " + plugin_name)
 
         # If the plugin already exists, skip it
         if os.path.exists("../repository/" + plugin_name[0] + "/" + plugin_name):
