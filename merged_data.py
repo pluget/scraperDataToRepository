@@ -115,7 +115,7 @@ def main():
         archived = False
         github_data = {}
 
-        if source_link_splitted[2] == "github.com":
+        if len(source_link_splitted) > 4 and source_link_splitted[2] == "github.com":
             github_data = {
                 "type": "github",
                 "url": source_link,
