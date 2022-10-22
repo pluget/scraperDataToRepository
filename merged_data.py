@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import random
 import requests
 import re
 import pathlib
@@ -88,6 +89,17 @@ def main():
         )
 
         print("Starting with " + plugin_name)
+
+        plugin_name_letter = ""
+        if len(plugin_name) > 0:
+            plugin_name_letter = plugin_name[0]
+        else:
+            plugin_name_letter = (
+                "?"  # If the plugin name is empty, use ? as the first letter
+            )
+            plugin_name = "unknown" + str(
+                random.randrange(0, 2137420)
+            )  # Use unknown with random number as the name
 
         # If the plugin already exists, skip it
         if os.path.exists("../repository/" + plugin_name[0] + "/" + plugin_name):
