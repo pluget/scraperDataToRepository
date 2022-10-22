@@ -100,9 +100,12 @@ def main():
 
         # Get the source link
         source_link = ""
-        if "sourceCodeLink" in plugin[2]:
+        if (
+            "sourceCodeLink" in plugin[2]
+            and len(plugin[2]["sourceCodeLink"].split("/")) > 4
+        ):
             source_link = plugin[2]["sourceCodeLink"]
-        elif "source" in plugin[1]:
+        elif "source" in plugin[1] and len(plugin[1]["source"].split("/")) > 4:
             source_link = plugin[1]["source"]
 
         source_link_splitted = source_link.split("/")
