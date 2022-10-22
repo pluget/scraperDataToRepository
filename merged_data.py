@@ -24,6 +24,7 @@ def main():
 
     endpoint = "https://github.com/login/oauth/authorize"
     endpoint = endpoint + "?" + urlencode(params)
+    print(endpoint)
     webbrowser.open(endpoint)
 
     # Open the matches file
