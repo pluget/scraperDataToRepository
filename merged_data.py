@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 import webbrowser
 import nft_storage
 from nft_storage.api import nft_storage_api
+from vertosemver import toSemVer
 
 
 def main():
@@ -278,7 +279,7 @@ def main():
 
             versions_data.append(
                 [
-                    version["name"],
+                    toSemVer(version["name"]),
                     {
                         "about": [
                             {
@@ -309,7 +310,7 @@ def main():
             # Put plugin data into the repository
             f = open(
                 "../repository/"
-                + plugin_name[0]
+                + plugin_name_letter
                 + "/"
                 + plugin_name
                 + "/"
@@ -323,7 +324,7 @@ def main():
             for version in versions_data:
                 f = open(
                     "../repository/"
-                    + plugin_name[0]
+                    + plugin_name_letter
                     + "/"
                     + plugin_name
                     + "/"
