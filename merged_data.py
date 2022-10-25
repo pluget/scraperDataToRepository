@@ -103,11 +103,11 @@ def main():
             )  # Use unknown with random number as the name
 
         # If the plugin already exists, skip it
-        if os.path.exists("../repository/" + plugin_name[0] + "/" + plugin_name):
+        if os.path.exists("../repository/" + plugin_name_letter + "/" + plugin_name):
             continue
 
         # Create the directory for the plugin
-        pathlib.Path("../repository/" + plugin_name[0] + "/" + plugin_name).mkdir(
+        pathlib.Path("../repository/" + plugin_name_letter + "/" + plugin_name).mkdir(
             parents=True, exist_ok=True
         )
 
